@@ -1,12 +1,15 @@
 import socket
+from .header import Header, RCode
+from .message import DNSMessage
+from .question import DNSQuestion, QClass, QType
 
 def create_message_header() -> bytes:
     # headers are 12 bytes long
     # packet ID is 16 bits long or 2 bytes, expected value is 1234
     # Query/Response Indicator is 1 bit long, expected value is 1
     res = [0 for _ in range(12)]
-    res[0] = (1234 >> 8) & 255
-    res[1] = 1234 & 255
+    res[0] = 4
+    res[1] = 210
     res[2] = 128
     return bytes(res)
 
@@ -23,10 +26,30 @@ def main():
         try:
             buf, source = udp_socket.recvfrom(512)
 
-            response = create_message_header()
-            print(response)
+            response_header = Header(
+                id=1234,
+                qr=1,
+                opcode=0,
+                aa=0,
+                tc=0,
+                rd=0,
+                ra=0,
+                z=0,
+                rcode=RCode.NO_ERROR,
+                qdcount=0,
+                ancount=0,
+                nscount=0,
+                arcount=0,
+            )
 
-            udp_socket.sendto(response, source)
+            response_question = DNSQuestion(
+                qname="codecrafters.io", qtype=QType.A, qclass=QClass.IN
+            )
+            response = DNSMessage(header=response_header)
+            response.add_question(response_question)
+            print(response_header)
+
+            udp_socket.sendto(response.encode(), source)
         except Exception as e:
             print(f"Error receiving data: {e}")
             break
