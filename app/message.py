@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from io import BytesIO
 
 from .answer import Answer
 from .header import Header
@@ -39,3 +40,13 @@ class DNSMessage:
         answers = b"".join([answer.encode() for answer in self.answers])
 
         return header + questions + answers
+
+    @staticmethod
+    def decode(data: bytes) -> "DNSMessage":
+        reader = BytesIO(data)
+        print("reader is ok")
+        header = Header.decode(reader)
+        print("header is ok")
+        questions = [DNSQuestion.decode(reader) for _ in range(header.qdcount)]
+        records = [Answer.decode(reader) for _ in range(header.ancount)]
+        return DNSMessage(header=header, questions=questions, answers=records)

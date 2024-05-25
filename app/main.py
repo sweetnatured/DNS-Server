@@ -16,42 +16,37 @@ def main():
 
     while True:
         try:
-            buf, source = udp_socket.recvfrom(512)
-            request_header = Header.decode(buf)
+            data, source = udp_socket.recvfrom(512)
+            request = DNSMessage.decode(data)
+            print("request decoded")
             response_header = Header(
-                id=request_header.id,
+                id=request.header.id,
                 qr=1,
-                opcode=request_header.opcode,
+                opcode=request.header.opcode,
                 aa=0,
                 tc=0,
-                rd=request_header.rd,
+                rd=request.header.rd,
                 ra=0,
                 z=0,
-                rcode=RCode(4) if request_header.opcode else RCode(0),
+                rcode=RCode(4) if request.header.opcode else RCode(0),
                 qdcount=0,
                 ancount=0,
                 nscount=0,
                 arcount=0,
             )
-
-            question = DNSQuestion(
-                qname="codecrafters.io".encode(),
-                qtype=QType.A,
-                qclass=QClass.IN
-            )
-
-            answer = Answer(
-                qname=question.qname,
-                qtype=question.qtype,
-                qclass= question.qclass,
-                ttl=60,
-                rdlength=4,
-                rdata="8.8.8.8"
-            )
-
+            print("header created")
             response = DNSMessage(header=response_header)
-            response.add_question(question)
-            response.add_answer(answer)
+
+            for question in request.questions:
+                response.add_question(question)
+                response.add_answer(Answer(
+                    qname=question.qname,
+                    qtype=question.qtype,
+                    qclass=question.qclass,
+                    ttl=60,
+                    rdlength=4,
+                    rdata="8.8.8.8"
+                ))
 
             udp_socket.sendto(response.encode(), source)
 

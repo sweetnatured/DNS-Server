@@ -1,7 +1,11 @@
 import struct
 from enum import Enum
 from dataclasses import dataclass
-from .utils import encode_name
+from io import BytesIO
+
+from .utils import encode_name, decode_name_simple
+
+
 class QType(int, Enum):
     # A host address
     A = 1
@@ -67,3 +71,10 @@ class DNSQuestion:
         return encode_name(self.qname) + struct.pack(
             "!HH", self.qtype.value, self.qclass.value
         )
+
+    @staticmethod
+    def decode(reader: BytesIO) -> "DNSQuestion":
+        qname = decode_name_simple(reader)
+        data = reader.read(4)
+        qtype, qclass = struct.unpack("!HH", data)
+        return DNSQuestion(qname=qname, qtype=QType(qtype), qclass=QClass(qclass))

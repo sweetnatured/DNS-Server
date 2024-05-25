@@ -25,3 +25,9 @@ def decode_name(reader: BytesIO) -> bytes:
             break
         parts.append(reader.read(length))
     return b".".join(parts)
+
+def decode_name_simple(reader: BytesIO) -> bytes:
+    parts = []
+    while (length := reader.read(1)[0]) != 0:
+        parts.append(reader.read(length))
+    return b".".join(parts)
