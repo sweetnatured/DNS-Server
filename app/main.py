@@ -4,15 +4,6 @@ from .message import DNSMessage
 from .question import DNSQuestion, QClass, QType
 from .answer import Answer
 
-def create_message_header() -> bytes:
-    # headers are 12 bytes long
-    # packet ID is 16 bits long or 2 bytes, expected value is 1234
-    # Query/Response Indicator is 1 bit long, expected value is 1
-    res = [0 for _ in range(12)]
-    res[0] = 4
-    res[1] = 210
-    res[2] = 128
-    return bytes(res)
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -26,17 +17,17 @@ def main():
     while True:
         try:
             buf, source = udp_socket.recvfrom(512)
-
+            request_header = Header.decode(buf)
             response_header = Header(
-                id=1234,
+                id=request_header.id,
                 qr=1,
-                opcode=0,
+                opcode=request_header.opcode,
                 aa=0,
                 tc=0,
-                rd=0,
+                rd=request_header.rd,
                 ra=0,
                 z=0,
-                rcode=RCode.NO_ERROR,
+                rcode=RCode(4) if request_header.opcode else RCode(0),
                 qdcount=0,
                 ancount=0,
                 nscount=0,

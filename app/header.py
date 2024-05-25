@@ -121,9 +121,9 @@ class Header:
         return header
 
     @staticmethod
-    def decode(reader: BytesIO) -> "Header":
+    def decode(reader: bytes) -> "Header":
         id, flags, qdcount, ancount, nscount, arcount = struct.unpack(
-            "!HHHHHH", reader.read(12)
+            "!HHHHHH", reader[:12]
         )
 
         return Header(
