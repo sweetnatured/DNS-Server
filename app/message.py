@@ -27,7 +27,6 @@ class DNSMessage:
 
     def add_question(self, question: DNSQuestion):
         self.questions.append(question)
-        print(self.header)
         self.header.qdcount += 1
 
     def add_answer(self, answer: Answer):
@@ -44,9 +43,7 @@ class DNSMessage:
     @staticmethod
     def decode(data: bytes) -> "DNSMessage":
         reader = BytesIO(data)
-        print("reader is ok")
         header = Header.decode(reader)
-        print("header is ok")
         questions = [DNSQuestion.decode(reader) for _ in range(header.qdcount)]
         records = [Answer.decode(reader) for _ in range(header.ancount)]
         return DNSMessage(header=header, questions=questions, answers=records)
