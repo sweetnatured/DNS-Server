@@ -57,11 +57,13 @@ class DNSQuestion:
     # A domain name represented as a sequence of labels, where each
     # label consists of a length octet followed by the number of octets
     # The domain name terminates with the zero length octet
-    qname: str
+    qname: bytes
     # Type of record
     qtype: QType
     # Class of query
     qclass: QClass
+
     def encode(self) -> bytes:
-        encoded_name = encode_name(self.qname)
-        return encoded_name + struct.pack("!HH", self.qtype.value, self.qclass.value)
+        return encode_name(self.qname) + struct.pack(
+            "!HH", self.qtype.value, self.qclass.value
+        )

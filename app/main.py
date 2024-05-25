@@ -2,6 +2,7 @@ import socket
 from .header import Header, RCode
 from .message import DNSMessage
 from .question import DNSQuestion, QClass, QType
+from .answer import Answer
 
 def create_message_header() -> bytes:
     # headers are 12 bytes long
@@ -42,14 +43,27 @@ def main():
                 arcount=0,
             )
 
-            response_question = DNSQuestion(
-                qname="codecrafters.io", qtype=QType.A, qclass=QClass.IN
+            question = DNSQuestion(
+                qname="codecrafters.io".encode(),
+                qtype=QType.A,
+                qclass=QClass.IN
             )
+
+            answer = Answer(
+                qname=question.qname,
+                qtype=question.qtype,
+                qclass= question.qclass,
+                ttl=60,
+                rdlength=4,
+                rdata="8.8.8.8"
+            )
+
             response = DNSMessage(header=response_header)
-            response.add_question(response_question)
-            print(response_header)
+            response.add_question(question)
+            response.add_answer(answer)
 
             udp_socket.sendto(response.encode(), source)
+
         except Exception as e:
             print(f"Error receiving data: {e}")
             break
