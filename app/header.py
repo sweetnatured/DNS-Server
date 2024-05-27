@@ -123,9 +123,9 @@ class Header:
     @staticmethod
     def decode(reader: BytesIO) -> "Header":
         id, flags, qdcount, ancount, nscount, arcount = struct.unpack(
-            "!HHHHHH", reader.read(12)
+            "!HHHHHH", reader.read(12) # read 12 bytes which represent header info in the DNS request.
         )
-
+        print("decoder header", id, flags, qdcount, ancount, nscount, arcount)
         return Header(
             id=id,
             qr=(flags >> 15) & 0x01,

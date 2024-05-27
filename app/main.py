@@ -2,17 +2,11 @@ import argparse
 import socket
 from copy import deepcopy
 
-from .answer import Answer
 from .header import RCode
 from .message import DNSMessage
 
 
-def main(resolver: str| None):
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    print("Logs from your program will appear here!")
-
-    # Uncomment this block to pass the first stage
-
+def main(resolver: str | None):
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind(("127.0.0.1", 2053))
 
@@ -20,7 +14,6 @@ def main(resolver: str| None):
         try:
             data, source = udp_socket.recvfrom(512)
             request = DNSMessage.decode(data)
-            print("request decoded")
 
             records = []
             if resolver:
@@ -57,4 +50,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--resolver", type=str, help="specify the DNS resolver address")
     args = parser.parse_args()
+    print("resolver : ",args.resolver)
     main(args.resolver)

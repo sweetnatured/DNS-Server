@@ -16,10 +16,6 @@ class DNSMessage:
     +---------------------+
     |        Answer       | RRs answering the question
     +---------------------+
-    |      Authority      | RRs pointing toward an authority
-    +---------------------+
-    |      Additional     | RRs holding additional information
-    +---------------------+
     """
     header: Header
     questions: list[DNSQuestion] = field(default_factory=list)
@@ -42,8 +38,8 @@ class DNSMessage:
 
     @staticmethod
     def decode(data: bytes) -> "DNSMessage":
-        reader = BytesIO(data)
-        header = Header.decode(reader)
+        reader = BytesIO(data) # bytes object is immutable so create BytesIO object to use it as if a file object.
+        header = Header.decode(reader) # Need to decode to know question and answer number etc.
         questions = [DNSQuestion.decode(reader) for _ in range(header.qdcount)]
-        records = [Answer.decode(reader) for _ in range(header.ancount)]
-        return DNSMessage(header=header, questions=questions, answers=records)
+        answers = [Answer.decode(reader) for _ in range(header.ancount)]
+        return DNSMessage(header=header, questions=questions, answers=answers)

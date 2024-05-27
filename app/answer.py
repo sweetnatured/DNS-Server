@@ -54,6 +54,7 @@ class Answer:
         return encoded + b"\x00"
 
     def encode(self) -> bytes:
+        print("IP is :", self.rdata)
         return (
                 encode_name(self.qname)
                 + struct.pack(

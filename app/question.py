@@ -75,6 +75,7 @@ class DNSQuestion:
     @staticmethod
     def decode(reader: BytesIO) -> "DNSQuestion":
         qname = decode_name(reader)
-        data = reader.read(4)
-        qtype, qclass = struct.unpack("!HH", data)
+        data = reader.read(4) # read first 4 byte to get the question
+        qtype, qclass = struct.unpack("!HH", data) #convert bytes to string
+        print("question name :" ,qname, "qclass:", qclass)
         return DNSQuestion(qname=qname, qtype=QType(qtype), qclass=QClass(qclass))
